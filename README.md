@@ -42,3 +42,13 @@ EEPROMData.encode(buffer,0, {
 },{endian:"LE"})
 
 ```
+
+## Why not using one of the other modules?
+
+I want to create schemas in node.js and use those for reading and writing binary buffers. Next to that I also want to output the header files for CPP which I can simply compile and use in my project.
+
+The schema defines exact sizes, not the data - which may be incomplete and is to be filled with default data (zeros).
+
+The other modules I looked at either focused on packing data as binary efficient or packed data directly without schema. 
+
+The closest match I could find was [buffer-layout](https://www.npmjs.com/package/buffer-layout).
