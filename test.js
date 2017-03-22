@@ -29,6 +29,15 @@ var tests = [
 
 		uint16.encode(buff,1,{uint16:0x0120},{endian:"LE"});
 		assertEQ("\0 \1\0",buff.toString("ASCII"));
+
+		var result = uint16.decode(buff,1,{endian:"LE"})
+		assertEQ(0x0120, result && result.uint16);
+
+		result = uint16.decode(buff,1,{endian:"BE"})
+		assertEQ(0x2001, result && result.uint16);
+
+		result = uint16.decode(buff,1)
+		assertEQ(0x2001, result && result.uint16);
 	},
 	function uint32() {
 		var uint32 = new struct("uint32",[
@@ -43,6 +52,15 @@ var tests = [
 
 		uint32.encode(buff,1,{uint32:0x01020304},{endian:"LE"});
 		assertEQ("\0\4\3\2\1\0",buff.toString("ASCII"));
+
+		var result = uint32.decode(buff,1,{endian:"LE"})
+		assertEQ(0x01020304, result && result.uint32);
+	
+		result = uint32.decode(buff,1,{endian:"BE"})
+		assertEQ(0x04030201, result && result.uint32);
+		
+		result = uint32.decode(buff,1)
+		assertEQ(0x04030201, result && result.uint32);
 	},
 	function FixedStringStruct () {
 		var FixedStringStruct = new struct("FixedStringStruct", [

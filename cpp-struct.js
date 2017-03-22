@@ -115,20 +115,38 @@ struct.uint8 = function(n) {
 		)
 };
 struct.uint16 = function(n) {
-	return this.type("uint16_t",2,n).setEncoder(
-		(buffer,pos,data,opt) => {
-			//console.trace(opt)
-			//console.log("uint16@ "+pos);
-			if (opt && opt.endian == "LE")
-				buffer.writeUInt16LE(data || 0,pos);
-			else buffer.writeUInt16BE(data || 0,pos);
-		});
+	return this.type("uint16_t",2,n)
+		.setEncoder(
+			(buffer,pos,data,opt) => {
+				//console.trace(opt)
+				//console.log("uint16@ "+pos);
+				if (opt && opt.endian == "LE")
+					buffer.writeUInt16LE(data || 0,pos);
+				else buffer.writeUInt16BE(data || 0,pos);
+			}
+		)
+		.setDecoder(
+			(buffer,pos,opt) => {
+				if (opt && opt.endian == "LE")
+					return buffer.readUInt16LE(pos);
+				else return buffer.readUInt16BE(pos);
+			}
+		)
 };
 struct.uint32 = function(n) {
-	return this.type("uint32_t",4,n).setEncoder(
-		(buffer,pos,data,opt) => {
-			if (opt && opt.endian == "LE")
-				buffer.writeUInt32LE(data || 0,pos);
-			else buffer.writeUInt32BE(data || 0,pos);
-		});
+	return this.type("uint32_t",4,n)
+		.setEncoder(
+			(buffer,pos,data,opt) => {
+				if (opt && opt.endian == "LE")
+					buffer.writeUInt32LE(data || 0,pos);
+				else buffer.writeUInt32BE(data || 0,pos);
+			}
+		)
+		.setDecoder(
+			(buffer,pos,opt) => {
+				if (opt && opt.endian == "LE")
+					return buffer.readUInt32LE(pos);
+				else return buffer.readUInt32BE(pos);
+			}
+		)
 };
