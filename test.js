@@ -69,12 +69,19 @@ var tests = [
 
 		assertEQ(5,FixedStringStruct.size())
 		var buff = Buffer.alloc(FixedStringStruct.size(),0);
+		var result
 		
 		FixedStringStruct.encode(buff,0);
 		assertEQ("\0\0\0\0\0",buff.toString("ASCII"));
+
+		result = FixedStringStruct.decode(buff,0);
+		assertEQ("",result && result.name);
 		
 		FixedStringStruct.encode(buff,0,{"name":"hi"});
 		assertEQ("hi\0\0\0",buff.toString("ASCII"));
+		
+		result = FixedStringStruct.decode(buff,0);
+		assertEQ("hi",result && result.name);
 
 		FixedStringStruct.encode(buff,0,{"name":"this is too long"});
 		assertEQ("this ",buff.toString("ASCII"));
@@ -82,6 +89,9 @@ var tests = [
 		buff = Buffer.alloc(FixedStringStruct.size() + 2,0);
 		FixedStringStruct.encode(buff,1,{"name":"this is too long"});
 		assertEQ("\0this \0",buff.toString("ASCII"));
+
+		result = FixedStringStruct.decode(buff,1);
+		assertEQ("this ",result && result.name);
 	},
 	function Nesting() {
 		var Player = new struct("Player", [

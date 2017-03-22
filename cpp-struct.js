@@ -93,13 +93,23 @@ struct.type = function(type,size,count) {
 		});
 }
 struct.char = function(n) {
-	return this.type("char",n,1).setEncoder(
-		(buffer,pos,data,opt) => {
-			var str = data ? data.toString() : "";
-			for (var i=0;i<n;i+=1) {
-				buffer.write(i < str.length ? str[i] : "\0",pos+i)
+	return this.type("char",n,1)
+		.setEncoder(
+			(buffer,pos,data,opt) => {
+				var str = data ? data.toString() : "";
+				for (var i=0;i<n;i+=1) {
+					buffer.write(i < str.length ? str[i] : "\0",pos+i)
+				}
 			}
-		});
+		)
+		.setDecoder(
+			(buffer,pos,opt) => {
+				var s = buffer.toString("ASCII",pos,pos+n);
+				var cutAt = s.indexOf("\0");
+				if (cutAt < 0) return s;
+				return s.substr(0,cutAt);
+			}
+		)
 };
 struct.uint8 = function(n) {
 	return this.type("uint8_t",1,n)
