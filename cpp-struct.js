@@ -48,11 +48,11 @@ struct.prototype.toString = function() {
 };
 
 struct.prototype.encode = function(buffer,pos, data, opt) {
-	this.encoder(buffer,pos,data, opt);
+	this.encoder(buffer,pos||0,data, opt);
 };
 
 struct.prototype.decode = function(buffer,pos,opt) {
-	return this.decoder(buffer,pos,opt);
+	return this.decoder(buffer,pos||0,opt);
 };
 
 // class members
@@ -76,10 +76,11 @@ struct.decoder = function(buffer, pos, opt) {
 			pos += type.size();
 		} else {
 			var arr = [];
-			data[name] = [];
+			data[name] = arr;
 			for (var i=0;i<type.count;i+=1) {
 				arr[i] = type.decode(buffer,pos,opt);
-				pos += type.size();
+				//console.log(pos,arr[i],type)
+				pos += type.bytes;
 			}
 		}
 	});
@@ -87,10 +88,17 @@ struct.decoder = function(buffer, pos, opt) {
 }
 
 struct.type = function(type,size,count) {
-	return new struct(type.name || type, [], count, size).setEncoder(
-		(buffer,pos,data,opt)=>{
-			type.encode(buffer,pos,data,opt)
-		});
+	return new struct(type.name || type, [], count, size)
+		.setEncoder(
+			(buffer,pos,data,opt)=>{
+				type.encode(buffer,pos,data,opt)
+			}
+		)
+		.setDecoder(
+			(buffer,pos,data,opt)=>{
+				return type.decode(buffer,pos,opt);
+			}
+		)
 }
 struct.char = function(n) {
 	return this.type("char",n,1)

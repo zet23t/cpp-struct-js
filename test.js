@@ -109,6 +109,16 @@ var tests = [
 				{name:"hi",info:[1,2]}
 			]});
 		assertEQ("hey\0hi\1\2\0\0\0\0\0\0\0\0",buff.toString("ASCII"));
+
+		var result = Collection.decode(buff);
+		assertEQ(JSON.stringify({
+			gameName:"hey",
+			players:[
+				{name:"hi",info:[1,2]},
+				{name:"",info:[0,0]},
+				{name:"",info:[0,0]}
+			]
+		}), JSON.stringify(result))
 	}
 ]
 
