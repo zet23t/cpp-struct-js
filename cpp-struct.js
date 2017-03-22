@@ -1,5 +1,6 @@
 module.exports = struct;
 
+// struct class
 function struct(name, schema, count, bytes) {
 	this.name = name;
 	this.schema = schema;
@@ -9,17 +10,54 @@ function struct(name, schema, count, bytes) {
 	}
 	this.count = count || 1;
 	this.encoder = struct.encoder;
+	this.decoder = struct.decoder;
 }
 
+// instance members
 struct.prototype.setEncoder = function(f) {
-	this.encoder = f;
-	return this;
+	return this.encoder = f, this;
 }
 
-struct.encoder = function(buffer, pos, data, opt) {
+struct.prototype.setDecoder = function(f) {
+	return this.decoder = f, this;
+}
+
+struct.prototype.forEachInSchema = function (f) {
 	for (var i=0;i<this.schema.length;i+=2) {
 		var name = this.schema[i];
 		var type = this.schema[i+1];
+		f(name,type);
+	}
+}
+
+struct.prototype.size = function() {
+	return this.bytes * this.count;
+};
+
+struct.prototype.toString = function() {
+	var out = ["struct "+this.name+" {"]
+	for (var i=0;i<this.schema.length;i+=2) {
+		var name = this.schema[i];
+		var type = this.schema[i+1];
+		//console.log(type);
+		var arr = type.count > 1 ? "["+type.count+"]" : "";
+		out.push("  "+type.name+" "+name+arr+"; // Size: "+type.size());
+	}
+	out.push("}; // Size: "+this.size());
+	return out.join("\n")
+};
+
+struct.prototype.encode = function(buffer,pos, data, opt) {
+	this.encoder(buffer,pos,data, opt);
+};
+
+struct.prototype.decode = function(buffer,pos,opt) {
+	return this.decoder(buffer,pos,opt);
+};
+
+// class members
+struct.encoder = function(buffer, pos, data, opt) {
+	this.forEachInSchema((name,type)=> {
 		var dval = data && data[name]
 		//console.log(pos,this.name+"."+name,type.name,type.size(),type.schema);
 		for (var j=0;j<type.count;j+=1) {
@@ -27,8 +65,15 @@ struct.encoder = function(buffer, pos, data, opt) {
 			type.encode(buffer,pos,el,opt);
 			pos += type.bytes;	
 		}
-		
-	}
+	});
+}
+
+struct.decoder = function(buffer, pos, opt) {
+	var data
+	this.forEachInSchema((name,type)=> {
+
+	});
+	return data;
 }
 
 struct.type = function(type,size,count) {
@@ -69,24 +114,4 @@ struct.uint32 = function(n) {
 				buffer.writeUInt32LE(data || 0,pos);
 			else buffer.writeUInt32BE(data || 0,pos);
 		});
-};
-struct.prototype.size = function() {
-	return this.bytes * this.count;
-};
-
-struct.prototype.toString = function() {
-	var out = ["struct "+this.name+" {"]
-	for (var i=0;i<this.schema.length;i+=2) {
-		var name = this.schema[i];
-		var type = this.schema[i+1];
-		//console.log(type);
-		var arr = type.count > 1 ? "["+type.count+"]" : "";
-		out.push("  "+type.name+" "+name+arr+"; // Size: "+type.size());
-	}
-	out.push("}; // Size: "+this.size());
-	return out.join("\n")
-};
-
-struct.prototype.encode = function(buffer,pos, data, opt) {
-	this.encoder(buffer,pos,data, opt);
 };
