@@ -69,9 +69,19 @@ struct.encoder = function(buffer, pos, data, opt) {
 }
 
 struct.decoder = function(buffer, pos, opt) {
-	var data
+	var data = {}
 	this.forEachInSchema((name,type)=> {
-
+		if (type.count == 1) {
+			data[name] = type.decode(buffer,pos,opt);
+			pos += type.size();
+		} else {
+			var arr = [];
+			data[name] = [];
+			for (var i=0;i<type.count;i+=1) {
+				arr[i] = type.decode(buffer,pos,opt);
+				pos += type.size();
+			}
+		}
 	});
 	return data;
 }
@@ -92,10 +102,17 @@ struct.char = function(n) {
 		});
 };
 struct.uint8 = function(n) {
-	return this.type("uint8_t",1,n).setEncoder(
-		(buffer,pos,data,opt) => {
-			buffer.writeUInt8(data || 0,pos);
-		});
+	return this.type("uint8_t",1,n)
+		.setEncoder(
+			(buffer,pos,data,opt) => {
+				buffer.writeUInt8(data || 0,pos);
+			}
+		)
+		.setDecoder(
+			(buffer,pos,opt) => {
+				return buffer.readUInt8(pos);
+			}
+		)
 };
 struct.uint16 = function(n) {
 	return this.type("uint16_t",2,n).setEncoder(

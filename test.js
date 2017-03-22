@@ -12,6 +12,9 @@ var tests = [
 
 		uint8.encode(buff,1,{int8:32});
 		assertEQ("\0 \0",buff.toString("ASCII"));
+
+		var result = uint8.decode(buff,1);
+		assertEQ(32, result && result.int8);
 	},
 	function uint16() {
 		var uint16 = new struct("uint16",[
@@ -97,8 +100,8 @@ for (var i=0;i<tests.length;i+=1) {
 function assertEQ(exp,has) {
 	if (exp !== has) {
 		throw new Error("Expected: "+
-			exp+(exp.length?"["+exp.length+"]":"")+" got "+
-			has+(has.length?"["+has.length+"]":""))
+			exp+(exp && exp.length?"["+exp.length+"]":"")+" got "+
+			has+(has && has.length?"["+has.length+"]":""))
 	}
 	asserts+=1;
 }
