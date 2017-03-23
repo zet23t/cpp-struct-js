@@ -93,6 +93,19 @@ var tests = [
 		result = FixedStringStruct.decode(buff,1);
 		assertEQ("this ",result && result.name);
 	},
+	function Float() {
+		var floatStruct = new struct("floatStruct",["f",struct.float32()]);
+		assertEQ(4,floatStruct.size());
+
+		var buff = Buffer.alloc(6,0);
+		floatStruct.encode(buff,1,{f:1.25},{endian:"BE"});
+		var result = floatStruct.decode(buff,1,{endian:"BE"});
+		assertEQ(1.25,result && result.f);
+
+		floatStruct.encode(buff,1,{f:1.25},{endian:"LE"});
+		 result = floatStruct.decode(buff,1,{endian:"LE"});
+		assertEQ(1.25,result && result.f);
+	},
 	function Nesting() {
 		var Player = new struct("Player", [
 			"name", struct.char(2),
