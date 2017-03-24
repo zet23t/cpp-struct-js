@@ -22,6 +22,10 @@ struct.prototype.setDecoder = function(f) {
 	return this.decoder = f, this;
 }
 
+struct.prototype.setIsNoArray = function(noArray) {
+	return this.isNoArray = noArray, this;
+}
+
 struct.prototype.forEachInSchema = function (f) {
 	for (var i=0;i<this.schema.length;i+=2) {
 		var name = this.schema[i];
@@ -36,15 +40,12 @@ struct.prototype.size = function() {
 
 struct.prototype.toString = function() {
 	var out = ["struct "+this.name+" {"]
-	for (var i=0;i<this.schema.length;i+=2) {
-		var name = this.schema[i];
-		var type = this.schema[i+1];
-		//console.log(type);
+	this.forEachInSchema((name,type)=>{	
 		var arr = type.count > 1 ? "["+type.count+"]" : "";
 		out.push("  "+type.name+" "+name+arr+"; // Size: "+type.size());
-	}
+	});
 	out.push("}; // Size: "+this.size());
-	return out.join("\n")
+	return out.join("\n");
 };
 
 struct.prototype.encode = function(buffer,pos, data, opt) {
@@ -63,7 +64,12 @@ struct.encoder = function(buffer, pos, data, opt) {
 		for (var j=0;j<type.count;j+=1) {
 			var el = dval && dval.join ? dval[j] : dval;
 			type.encode(buffer,pos,el,opt);
-			pos += type.bytes;	
+			if (type.isNoArray) {
+				pos += type.size();
+				break;
+			} else {
+				pos += type.bytes;	
+			}
 		}
 	});
 }
@@ -71,7 +77,7 @@ struct.encoder = function(buffer, pos, data, opt) {
 struct.decoder = function(buffer, pos, opt) {
 	var data = {}
 	this.forEachInSchema((name,type)=> {
-		if (type.count == 1) {
+		if (type.count == 1 || type.isNoArray) {
 			data[name] = type.decode(buffer,pos,opt);
 			pos += type.size();
 		} else {
@@ -101,7 +107,8 @@ struct.type = function(type,size,count) {
 		)
 }
 struct.char = function(n) {
-	return this.type("char",n,1)
+	return this.type("char",1,n)
+		.setIsNoArray(true)
 		.setEncoder(
 			(buffer,pos,data,opt) => {
 				var str = data ? data.toString() : "";

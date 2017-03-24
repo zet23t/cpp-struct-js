@@ -132,6 +132,13 @@ var tests = [
 				{name:"",info:[0,0]}
 			]
 		}), JSON.stringify(result))
+	},
+	function ToCPP() {
+		var Player = new struct("Player",[
+			"name", struct.char(24),
+			"score", struct.uint16(4)
+		]);
+		console.log(Player.toString());
 	}
 ]
 
@@ -144,7 +151,7 @@ for (var i=0;i<tests.length;i+=1) {
 		err += 1;
 		console.error("Test "+tests[i].name+" failed:")
 		var arr = e.stack.split("\n");
-		console.log(arr.splice(0,arr.length-8).join("\n"));
+		console.log(e.stack);
 	}
 }
 
@@ -163,4 +170,4 @@ function assert(cond,msg) {
 }
 console.log("  "+tests.length+" test(s), "+
 	err+" error(s), "+asserts+" passed assert(s)");
-process.exit(err)
+process.exit(err ? 1 : 0)
