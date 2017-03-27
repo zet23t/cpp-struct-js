@@ -126,73 +126,39 @@ struct.char = function(n) {
 			}
 		)
 };
-struct.uint8 = function(n) {
-	return this.type("uint8_t",1,n)
-		.setEncoder(
-			(buffer,pos,data,opt) => {
-				buffer.writeUInt8(data || 0,pos);
-			}
-		)
-		.setDecoder(
-			(buffer,pos,opt) => {
-				return buffer.readUInt8(pos);
-			}
-		)
-};
-struct.uint16 = function(n) {
-	return this.type("uint16_t",2,n)
-		.setEncoder(
-			(buffer,pos,data,opt) => {
-				//console.trace(opt)
-				//console.log("uint16@ "+pos);
-				if (isLittleEndian(opt))
-					buffer.writeUInt16LE(data || 0,pos);
-				else buffer.writeUInt16BE(data || 0,pos);
-			}
-		)
-		.setDecoder(
-			(buffer,pos,opt) => {
-				if (isLittleEndian(opt))
-					return buffer.readUInt16LE(pos);
-				else return buffer.readUInt16BE(pos);
-			}
-		)
-};
-struct.uint32 = function(n) {
-	return this.type("uint32_t",4,n)
-		.setEncoder(
-			(buffer,pos,data,opt) => {
-				if (isLittleEndian(opt))
-					buffer.writeUInt32LE(data || 0,pos);
-				else buffer.writeUInt32BE(data || 0,pos);
-			}
-		)
-		.setDecoder(
-			(buffer,pos,opt) => {
-				if (isLittleEndian(opt))
-					return buffer.readUInt32LE(pos);
-				else return buffer.readUInt32BE(pos);
-			}
-		)
-};
-struct.float32 = function(n) {
-	return this.type("float",4,n)
-		.setEncoder(
-			(buffer,pos,data,opt) => {
-				if (isLittleEndian(opt))
-					buffer.writeFloatLE(data || 0, pos);
-				else buffer.writeFloatBE(data || 0, pos);
-			}
-		)
-		.setDecoder(
-			(buffer,pos,opt) => {
-				if (isLittleEndian(opt))
-					return buffer.readFloatLE(pos);
-				else return buffer.readFloatBE(pos);
-			}
-		)
+function addNumberType(jsName,bytes,alias,aliasCPP) {
+	var writeName = "write"+jsName;
+	var readName = "read"+jsName;
+	var writeAccess = [
+		bytes > 1 ? writeName + "BE" : writeName,
+		bytes > 1 ? writeName + "LE" : writeName
+	];
+	var readAccess = [
+		bytes > 1 ? readName + "BE" : readName,
+		bytes > 1 ? readName + "LE" : readName
+	];
+
+	if (!alias) alias = jsName.toLowerCase();
+	struct[alias] = function(n) {
+		return this.type(aliasCPP||(jsName.toLowerCase()+"_t"),bytes,n)
+			.setEncoder(
+				(buffer,pos,data,opt) => {
+					buffer[writeAccess[isLittleEndian(opt)]](data||0,pos);
+				}
+			)
+			.setDecoder(
+				(buffer,pos,opt) => {
+					return buffer[readAccess[isLittleEndian(opt)]](pos);
+				}
+			)
+	}
 }
 
+addNumberType("UInt8",1);
+addNumberType("UInt16",2);
+addNumberType("UInt32",4);
+addNumberType("Float",4,"float32","float");
+
 function isLittleEndian(opt) {
-	return opt && opt.endian == "LE";
+	return opt && opt.endian == "LE" ? 1 : 0;
 }
