@@ -157,6 +157,9 @@ function addNumberType(jsName,bytes,alias,aliasCPP) {
 addNumberType("UInt8",1);
 addNumberType("UInt16",2);
 addNumberType("UInt32",4);
+addNumberType("Int8",1);
+addNumberType("Int16",2);
+addNumberType("Int32",4);
 addNumberType("Float",4,"float32","float");
 
 function isLittleEndian(opt) {

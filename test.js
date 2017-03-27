@@ -2,56 +2,82 @@ var struct = require("./cpp-struct.js");
 
 /// tests
 var tests = [
-	function uint8() {
-		var uint8 = new struct("int8",[
-			"int8", struct.uint8()
-		]);
-		
-		assertEQ(1,uint8.size());
+	function int8() {
 		var buff = Buffer.alloc(3);
+		function test(name) {
+			var uint8 = new struct(name,[
+				name, struct[name]()
+			]);
+			
+			assertEQ(1,uint8.size());
 
-		uint8.encode(buff,1,{int8:32});
-		assertEQ("\0 \0",buff.toString("ASCII"));
+			var obj = {};
+			obj[name] = 32;
+			uint8.encode(buff,1,obj);
+			assertEQ("\0 \0",buff.toString("ASCII"));
 
-		var result = uint8.decode(buff,1);
-		assertEQ(32, result && result.int8);
+			var result = uint8.decode(buff,1);
+			assertEQ(32, result && result[name]);
+			return uint8;
+		}
+		test("uint8");
+		// test same things for int8 as uint8 
+		var int8 = test("int8");
+		// test negative numbers too
+		int8.encode(buff,1,{int8:-17});
+		var result = int8.decode(buff,1);
+		assertEQ(-17,result && result.int8);
+		try {
+			int8.encode(buff,1,{int8:-172});
+		} catch(e) {
+			return;
+		}
+		throw new Error("this should have been caught");
 	},
 	function uint16() {
 		var uint16 = new struct("uint16",[
-			"uint16", struct.uint16()
+			"uint16", struct.uint16(),
+			"int16", struct.int16()
 		]);
 
-		assertEQ(2,uint16.size());
-		var buff = new Buffer.alloc(4);
+		assertEQ(4,uint16.size());
+		var buff = new Buffer.alloc(6);
 
 		uint16.encode(buff,1,{uint16:0x0120});
-		assertEQ("\0\1 \0",buff.toString("ASCII"));
+		assertEQ("\0\1 \0\0\0",buff.toString("ASCII"));
 
 		uint16.encode(buff,1,{uint16:0x0120},{endian:"LE"});
-		assertEQ("\0 \1\0",buff.toString("ASCII"));
+		assertEQ("\0 \1\0\0\0",buff.toString("ASCII"));
 
+		uint16.encode(buff,1,{uint16:0x0120, int16:-1025},{endian:"LE"});
 		var result = uint16.decode(buff,1,{endian:"LE"})
 		assertEQ(0x0120, result && result.uint16);
+		assertEQ(-1025, result && result.int16);
 
+		uint16.encode(buff,1,{uint16:0x0120, int16:-1025},{endian:"BE"});
 		result = uint16.decode(buff,1,{endian:"BE"})
-		assertEQ(0x2001, result && result.uint16);
+		assertEQ(0x0120, result && result.uint16);
+		assertEQ(-1025, result && result.int16);
 
 		result = uint16.decode(buff,1)
-		assertEQ(0x2001, result && result.uint16);
+		assertEQ(0x0120, result && result.uint16);
+		assertEQ(-1025, result && result.int16);
+
 	},
 	function uint32() {
 		var uint32 = new struct("uint32",[
-			"uint32", struct.uint32()
+			"uint32", struct.uint32(),
+			"int32", struct.int32()
 		]);
 
-		assertEQ(4,uint32.size());
-		var buff = new Buffer.alloc(6);
+		assertEQ(8,uint32.size());
+		var buff = new Buffer.alloc(10);
 
 		uint32.encode(buff,1,{uint32:0x01020304});
-		assertEQ("\0\1\2\3\4\0",buff.toString("ASCII"));
+		assertEQ("\0\1\2\3\4\0\0\0\0\0",buff.toString("ASCII"));
 
 		uint32.encode(buff,1,{uint32:0x01020304},{endian:"LE"});
-		assertEQ("\0\4\3\2\1\0",buff.toString("ASCII"));
+		assertEQ("\0\4\3\2\1\0\0\0\0\0",buff.toString("ASCII"));
 
 		var result = uint32.decode(buff,1,{endian:"LE"})
 		assertEQ(0x01020304, result && result.uint32);
@@ -61,6 +87,11 @@ var tests = [
 		
 		result = uint32.decode(buff,1)
 		assertEQ(0x04030201, result && result.uint32);
+
+		uint32.encode(buff,1,{int32:-120392},{endian:"LE"});
+		result = uint32.decode(buff,1, {endian:"LE"})
+		assertEQ(-120392, result && result.int32);
+
 	},
 	function FixedStringStruct () {
 		var FixedStringStruct = new struct("FixedStringStruct", [
