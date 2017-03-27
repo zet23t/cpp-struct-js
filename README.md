@@ -5,10 +5,13 @@ The intention of this module is to interace node.js with an Arduino software I a
 Supported types:
 
 * uint8,16,32
+* int8,16,32
 * float
 * strings
 
-One dimensional arrays are supported. Pointers are not supported, but
+Only one dimensional arrays are supported. It might be possible to extend the code to support this, but I don't see a need for this right now.
+
+Pointers are not supported, but
 that wouldn't make sense anyway since serialization can't deal with
 native memory adresses.
 
