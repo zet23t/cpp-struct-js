@@ -137,6 +137,19 @@ var tests = [
 		 result = floatStruct.decode(buff,1,{endian:"LE"});
 		assertEQ(1.25,result && result.f);
 	},
+	function Double() {
+		var doubleStruct = new struct("doubleStruct",["d",struct.double64()]);
+		assertEQ(8,doubleStruct.size());
+
+		var buff = Buffer.alloc(10,0);
+		doubleStruct.encode(buff,1,{d:1.25},{endian:"BE"});
+		var result = doubleStruct.decode(buff,1,{endian:"BE"});
+		assertEQ(1.25,result && result.d);
+
+		doubleStruct.encode(buff,1,{d:1.25},{endian:"LE"});
+		 result = doubleStruct.decode(buff,1,{endian:"LE"});
+		assertEQ(1.25,result && result.d);
+	},
 	function Nesting() {
 		var Player = new struct("Player", [
 			"name", struct.char(2),

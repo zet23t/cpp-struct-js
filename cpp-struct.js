@@ -161,6 +161,7 @@ addNumberType("Int8",1);
 addNumberType("Int16",2);
 addNumberType("Int32",4);
 addNumberType("Float",4,"float32","float");
+addNumberType("Double",8,"double64","double");
 
 function isLittleEndian(opt) {
 	return opt && opt.endian == "LE" ? 1 : 0;
