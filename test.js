@@ -180,9 +180,16 @@ var tests = [
 	function ToCPP() {
 		var Player = new struct("Player",[
 			"name", struct.char(24),
+			"x", struct.float32(),
+			"y", struct.float32(),
 			"score", struct.uint16(4)
 		]);
+		var Game = new struct("Game",[
+			"playerCount", struct.uint8(),
+			"players",struct.type(Player,Player.size(),16)
+		]);
 		console.log(Player.toString());
+		console.log(Game.toString());
 	}
 ]
 
