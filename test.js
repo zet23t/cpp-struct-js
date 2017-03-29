@@ -188,8 +188,7 @@ var tests = [
 			"playerCount", struct.uint8(),
 			"players",struct.type(Player,Player.size(),16)
 		]);
-		console.log(Player.toString());
-		console.log(Game.toString());
+		console.log(struct.toHeaderString([Player,Game]))
 	}
 ]
 
