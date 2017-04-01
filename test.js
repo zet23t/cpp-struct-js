@@ -158,7 +158,7 @@ var tests = [
 		assertEQ(4,Player.size());
 		var Collection = new struct("Collection", [
 			"gameName", struct.char(4),
-			"players", struct.type(Player,Player.size(),3)
+			"players", struct.type(Player,3)
 		]);
 		assertEQ(16,Collection.size());
 		var buff = Buffer.alloc(16);
@@ -186,7 +186,7 @@ var tests = [
 		]);
 		var Game = new struct("Game",[
 			"playerCount", struct.uint8(),
-			"players",struct.type(Player,Player.size(),16)
+			"players",struct.type(Player,16)
 		]);
 		console.log(struct.toHeaderString([Player,Game]))
 	}

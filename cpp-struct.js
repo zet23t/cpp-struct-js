@@ -1,6 +1,5 @@
 module.exports = struct;
 
-// struct class
 function struct(name, schema, count, bytes) {
 	this.name = name;
 	this.schema = schema;
@@ -94,6 +93,10 @@ struct.decoder = function(buffer, pos, opt) {
 }
 
 struct.type = function(type,size,count) {
+	if (type.size && count === undefined) {
+		count = size;
+		size = type.size();
+	}
 	return new struct(type.name || type, [], count, size)
 		.setEncoder(
 			(buffer,pos,data,opt)=>{

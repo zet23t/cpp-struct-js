@@ -35,8 +35,8 @@ var record = new struct("Record", [
 var EEPROMData = new struct("EEPROMData", [
 	"gameName", struct.char(14),
 	"version", struct.uint16_t(),
-	"players", struct.type(player,player.size(),32),
-	"records", struct.type(record,record.size(),32)
+	"players", struct.type(player,32),
+	"records", struct.type(record,32)
 ]);
 
 var buffer = new Buffer(EEPROMData.size());
@@ -51,6 +51,34 @@ EEPROMData.encode(buffer,0, {
 },{endian:"LE"})
 
 ```
+
+## Reference
+
+### Class: struct (var struct = require('cpp-struct'))
+
+#### Constructor signature: name, schema, [count, [bytes]]
+
+- name: Internal name that's used when exporting and referencing other structs. 
+- schema: Interleaved array where even elements are variable name identifiers and odd elements are struct instances
+- count (optional): If the type is supposed to be an array, this is the number of elements in the array
+- bytes (optional): Size of a single element in bytes (total size = count * bytes)
+
+Note: count and bytes arguments are used usually only internally - you don't have to worry about these if you don't intend to add new native types next to the currently implemented ones such as int/uint/float/double - say you'd want a int24, you'll need to care about these arguments.
+
+### Instance member: struct.setEncoder
+
+#### Function signature: func
+
+- func (buffer,pos,data,opt): Function that's called instead of the default encoder
+-- buffer: Buffer object to write to
+-- pos: position to write to
+-- data: the data value to be written (can be undefined)
+-- opt: optional options object that specifies encoding details (such as endianess)
+
+### Instance member: struct.setDecoder
+
+
+
 
 ## Why not using one of the other modules?
 
