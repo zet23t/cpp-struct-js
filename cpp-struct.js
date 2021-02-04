@@ -104,7 +104,7 @@ struct.type = function(type,size,count) {
 			}
 		)
 		.setDecoder(
-			(buffer,pos,data,opt)=>{
+			(buffer,pos,opt)=>{
 				return type.decode(buffer,pos,opt);
 			}
 		)

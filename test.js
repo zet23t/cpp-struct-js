@@ -177,6 +177,33 @@ var tests = [
 			]
 		}), JSON.stringify(result))
 	},
+	function NestingLE() {
+		var Player = new struct("Player", [
+			"name", struct.char(2),
+			"info", struct.uint16(2)
+		]);
+		assertEQ(6,Player.size());
+		var Collection = new struct("Collection", [
+			"gameName", struct.char(4),
+			"players", struct.type(Player,3)
+		]);
+		assertEQ(22,Collection.size());
+		var buff = Buffer.alloc(22);
+		Collection.encode(buff,0,{gameName:"hey",players:[
+				{name:"hi",info:[1,2]}
+			]}, {endian:"LE"});
+		assertEQ("hey\0hi\1\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0",buff.toString("ASCII"));
+
+		var result = Collection.decode(buff, 0, {endian:"LE"});
+		assertEQ(JSON.stringify({
+			gameName:"hey",
+			players:[
+				{name:"hi",info:[1,2]},
+				{name:"",info:[0,0]},
+				{name:"",info:[0,0]}
+			]
+		}, null, 2), JSON.stringify(result, null, 2))
+	},
 	function ToCPP() {
 		var Player = new struct("Player",[
 			"name", struct.char(24),
